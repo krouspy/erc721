@@ -16,6 +16,7 @@ contract Farm is Ownable {
     event NewBorn(address indexed owner, uint tokenId);
     event AuctionCreated(address indexed seller, uint tokenId);
     event NewBid(address indexed bidder, uint tokenId, uint price);
+    event AuctionClaimed(address indexed claimer, uint tokenId);
 
     enum AnimalType { Cow, Horse, Chicken, Pig, Sheep, Donkey, Rabbit, Duck }
     enum Age { Young, Adult, Old }
@@ -141,10 +142,8 @@ contract Farm is Ownable {
             if (animal.id == id) {
                 if (index < size - 1) {
                     _animalsOfOwner[owner][index] = _animalsOfOwner[owner][size - 1];
-                    delete _animalsOfOwner[owner][size - 1];
-                } else {
-                    delete _animalsOfOwner[owner][size - 1];
                 }
+                delete _animalsOfOwner[owner][size - 1];
             }
         }
     }
@@ -241,6 +240,7 @@ contract Farm is Ownable {
         require(_auctions[id].lastBidder == msg.sender, "you are not the last bidder");
         require(_auctions[id].startDate + 2 days <= now, "2 days have not yet passed");
         _processRetrieveAuction(id);
+        emit AuctionClaimed(msg.sender, id);
     }
           
     function _processRetrieveAuction(uint id) private {
