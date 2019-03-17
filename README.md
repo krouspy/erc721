@@ -142,7 +142,7 @@ To interact with our contracts, we also use truffle
 
 ## Demonstration
 
-Our crowdsale is based on breeders, that means only breeders can trade our Token/Animal
+Our farm is based on breeders, that means only breeders can trade our Token/Animal
 To register a breeder we need an instance of our Farm contract:
 
     Farm.deployed().then(instance => farm = instance)
