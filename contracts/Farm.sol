@@ -221,6 +221,22 @@ contract Farm is Ownable {
         return _auctions[id].priceToBid.mul(_animalsById[id].rarity);
     }
 
+    function transferAnimal(address receiver, uint id) public {
+        _transferAnimal(msg.sender, receiver, id);
+    }
+
+    // Auctioned Animal are locked
+    function _transferAnimal(address sender, address receiver, uint id) private onlyOwnerOfAnimal(id) {
+        require(isBreeder(receiver), "not a breeder");
+        require(_animalsById[id].id != 0, "not animal");
+        require(!_auctionedAnimals[id], "auctioned animal");
+        _erc721.transferFrom(sender, receiver, id);
+        _removeFromArray(sender, id);
+        _animalsOfOwner[receiver].push(_animalsById[id]);
+        _animalToOwner[id] = receiver;
+        emit AnimalTransfered(sender, receiver, id);
+    }
+
     function claimAuction(uint id) public onlyBreeder() onlyAuctionedAnimal(id) {
         require(_auctions[id].lastBidder == msg.sender, "you are not the last bidder");
         require(_auctions[id].startDate + 2 days <= now, "2 days have not yet passed");
@@ -235,18 +251,6 @@ contract Farm is Ownable {
             _auctionedAnimals[id] = false;
             delete _auctions[id];
         }
-    }
-
-    // Auctioned Animal are locked
-    function _transferAnimal(address sender, address receiver, uint id) private onlyOwnerOfAnimal(id) {
-        require(isBreeder(receiver), "not a breeder");
-        require(_animalsById[id].id != 0, "not animal");
-        require(!_auctionedAnimals[id], "auctioned animal");
-        _erc721.transferFrom(sender, receiver, id);
-        _removeFromArray(sender, id);
-        _animalsOfOwner[receiver].push(_animalsById[id]);
-        _animalToOwner[id] = receiver;
-        emit AnimalTransfered(sender, receiver, id);
     }
           
 }

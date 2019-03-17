@@ -41,6 +41,18 @@ module.exports = function(deployer, network, accounts) {
   }
   
   if (network === "rinkeby") {
-
+    return deployer
+    .then(() => deployer.deploy(SafeMath))
+    .then(() => deployer.link(SafeMath, Counters))
+    .then(() => deployer.link(SafeMath, ERC20))
+    .then(() => deployer.link(SafeMath, ERC721))
+    .then(() => deployer.link(SafeMath, Farm))
+    .then(() => deployer.link(SafeMath, Arena))
+    .then(() => deployer.deploy(Counters))
+    .then(() => deployer.deploy(ERC20, name, ticker, totalSupply, decimals))
+    .then(() => deployer.link(Counters, ERC721))
+    .then(() => deployer.deploy(ERC721))
+    .then(() => deployer.deploy(Farm, ERC721.address, ERC20.address))
+    .then(() => deployer.deploy(Arena, Farm.address, ERC721.address, ERC20.address))
   }
 };
