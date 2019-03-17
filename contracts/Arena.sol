@@ -15,8 +15,8 @@ contract Arena {
     mapping (uint => bool) private _fighters;
     mapping (uint => Fighter) private _fighterById;
 
-    ERC721 private _cryptoFarming;
-    ERC20 private _farmCoin;
+    ERC721 private _erc721;
+    ERC20 private _erc20;
     Farm private _farm;
 
     struct Fighter {
@@ -29,8 +29,8 @@ contract Arena {
 
     constructor(Farm farm, ERC721 cryptoFarming, ERC20 farmCoin) public {
         _farm = farm;
-        _cryptoFarming = cryptoFarming;
-        _farmCoin = farmCoin;
+        _erc721 = cryptoFarming;
+        _erc20 = farmCoin;
     }
 
     modifier onlyBreeder() {
@@ -46,6 +46,16 @@ contract Arena {
     modifier onlyFighter(uint id) {
         require(_fighters[id], "not a fighter");
         _;
+    }
+
+    function isFighter(uint id) public view returns (bool) {
+        return _fighters[id];
+    }
+    
+    function getFighter(uint id) public view returns (address owner, uint wins, uint defeats, uint reward, bool canFight) {
+        require(_fighters[id], "not a fighter");
+        Fighter memory fighter = _fighterById[id];
+        return (fighter.owner, fighter.wins, fighter.defeats, fighter.reward, fighter.canFight);
     }
 
     function registerFighter(uint id) public onlyBreeder() onlyOwnerOf(id) returns (bool) {
@@ -72,13 +82,18 @@ contract Arena {
         if (foe.mod(2) == 0) {
             _fighterById[foe].wins.add(1);
             _fighterById[challenger].defeats.add(1);
-            _farmCoin.transferFrom(msg.sender, fighter.owner, value);
+            _erc20.transferFrom(msg.sender, fighter.owner, value);
         } else {
             _fighterById[challenger].wins.add(1);
             _fighterById[foe].defeats.add(1);
-            _farmCoin.transferFrom(fighter.owner, msg.sender, value);
+            _erc20.transferFrom(fighter.owner, msg.sender, value);
         }
         return true;
     }
+
+    function giveSomeRestToFighter(uint id) public onlyOwnerOf(id) {
+        require(_fighterById[id].canFight, "already in rest");
+        _fighterById[id].canFight = false;
+    } 
 
 }

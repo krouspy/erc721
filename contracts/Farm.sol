@@ -31,8 +31,8 @@ contract Farm is Ownable {
 
     uint private _currentId;
 
-    ERC721 private _cryptoFarming;
-    ERC20 private _farmCoin;
+    ERC721 private _erc721;
+    ERC20 private _erc20;
 
     struct Animal {
         uint id;
@@ -54,9 +54,9 @@ contract Farm is Ownable {
         uint bestOffer;
     }
 
-    constructor(ERC721 cryptoFarming, ERC20 farmCoin) public {
-        _cryptoFarming = cryptoFarming;
-        _farmCoin = farmCoin;
+    constructor(ERC721 erc721, ERC20 erc20) public {
+        _erc721 = erc721;
+        _erc20 = erc20;
     }
 
     function registerBreeder(address _address) public onlyOwner() {
@@ -112,7 +112,7 @@ contract Farm is Ownable {
         _animalsOfOwner[msg.sender].push(animal);
         _animalsById[_currentId] = animal;
         _animalToOwner[_currentId] = to;
-        _cryptoFarming.mintToken(to, _currentId);
+        _erc721.mintToken(to, _currentId);
         return true;
     }
 
@@ -124,14 +124,14 @@ contract Farm is Ownable {
     }
 
     function deadAnimal(uint id) public onlyOwnerOfAnimal(id) {
-        _cryptoFarming.burnToken(msg.sender, id);
-        _removeFromAnimalsOfOwner(msg.sender, id);
+        _erc721.burnToken(msg.sender, id);
+        _removeFromArray(msg.sender, id);
         delete _animalsById[id];
         delete _animalToOwner[id];
         emit AnimalDeleted(msg.sender, id);
     }
 
-    function _removeFromAnimalsOfOwner(address owner, uint id) private {
+    function _removeFromArray(address owner, uint id) private {
         uint size = _animalsOfOwner[owner].length;
         for (uint index = 0; index < size; index++) {
             Animal storage animal = _animalsOfOwner[owner][index];
@@ -144,18 +144,6 @@ contract Farm is Ownable {
         }
     }
 
-    // Auctioned Animal are locked
-    function _transferAnimal(address sender, address receiver, uint id) private onlyBreeder() onlyOwnerOfAnimal(id) {
-        require(isBreeder(receiver), "not a breeder");
-        require(_animalsById[id].id != 0, "not animal");
-        require(!_auctionedAnimals[id], "auctioned animal");
-        _cryptoFarming.transferFrom(sender, receiver, id);
-        _removeFromAnimalsOfOwner(sender, id);
-        _animalsOfOwner[receiver].push(_animalsById[id]);
-        _animalToOwner[id] = receiver;
-        emit AnimalTransfered(sender, receiver, id);
-    }
-
     function breedAnimals(uint senderId, uint targetId) public onlyBreeder() onlyOwnerOfAnimal(senderId) returns (bool) {
         _preProcessBreeding(senderId, targetId);
         _processBreeding(msg.sender, senderId, targetId);
@@ -166,7 +154,7 @@ contract Farm is Ownable {
     // Initially if a token is approved to a specific address means that this address can trade our token
     // We use this functionality to tell if a specific breeder can use our token in order to breed animals
     function _preProcessBreeding(uint senderId, uint targetId) private view {
-        require(_cryptoFarming.getApproved(targetId) == _animalToOwner[senderId], "target animal not approved");
+        require(_erc721.getApproved(targetId) == _animalToOwner[senderId], "target animal not approved");
         require(_sameRace(senderId, targetId), "not same race");
         require(_canBreed(senderId, targetId), "can't breed");
         require(_breedMaleAndFemale(senderId, targetId), "can't breed");
@@ -217,9 +205,10 @@ contract Farm is Ownable {
     function _transferTokenBid(address newBidder, uint id, uint value) private {
         Auction memory auction = _auctions[id];
         if (auction.lastBidder != address(0)) {
-            _farmCoin.transferFrom(auction.seller, auction.lastBidder, auction.bestOffer);
-        } 
-        _farmCoin.transferFrom(newBidder, auction.seller, value);    
+            _erc20.transferFrom(auction.seller, auction.lastBidder, auction.bestOffer);
+        } else {
+            _erc20.transferFrom(newBidder, auction.seller, value);                    
+        }
     } 
 
     function _updateAuction(address newBidder, uint id, uint value) private {
@@ -238,7 +227,7 @@ contract Farm is Ownable {
         _processRetrieveAuction(id);
         emit AuctionClaimed(msg.sender, id);
     }
-          
+
     function _processRetrieveAuction(uint id) private {
         Auction storage auction = _auctions[id];
         if (auction.lastBidder != address(0)) {
@@ -247,4 +236,17 @@ contract Farm is Ownable {
             delete _auctions[id];
         }
     }
+
+    // Auctioned Animal are locked
+    function _transferAnimal(address sender, address receiver, uint id) private onlyOwnerOfAnimal(id) {
+        require(isBreeder(receiver), "not a breeder");
+        require(_animalsById[id].id != 0, "not animal");
+        require(!_auctionedAnimals[id], "auctioned animal");
+        _erc721.transferFrom(sender, receiver, id);
+        _removeFromArray(sender, id);
+        _animalsOfOwner[receiver].push(_animalsById[id]);
+        _animalToOwner[id] = receiver;
+        emit AnimalTransfered(sender, receiver, id);
+    }
+          
 }

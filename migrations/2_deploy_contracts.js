@@ -9,10 +9,6 @@ const name = "FarmCoin";
 const ticker = "FC";
 const totalSupply = 10**30;
 const decimals = 8;
-const rarity = 10;
-const isMale = true;
-const canBreed = true;
-const isVaccinated = false;
 
 module.exports = function(deployer, network, accounts) {
 
@@ -34,7 +30,7 @@ module.exports = function(deployer, network, accounts) {
     .then(farmInstance => {
       farmInstance.registerBreeder(accounts[0]);
       farmInstance.registerBreeder(accounts[1]);
-      farmInstance.macgyver(rarity, isMale, canBreed, isVaccinated);
+      farmInstance.macgyver(30, true, true, false);
       farmInstance.macgyver(20, false, true, true, { from: accounts[1] });
     })
     .then(() => ERC20.deployed())
