@@ -15,8 +15,8 @@ contract Farm is Ownable {
     event AnimalTransfered(address indexed from, address indexed to, uint tokenId);
     event NewBorn(address indexed owner, uint tokenId);
     event AuctionCreated(address indexed seller, uint tokenId);
-    event NewBid(address indexed bidder, uint tokenId, uint price);
     event AuctionClaimed(address indexed claimer, uint tokenId);
+    event NewBid(address indexed bidder, uint tokenId, uint price);
 
     enum AnimalType { Cow, Horse, Chicken, Pig, Sheep, Donkey, Rabbit, Duck }
     enum Age { Young, Adult, Old }
@@ -57,10 +57,6 @@ contract Farm is Ownable {
     constructor(ERC721 cryptoFarming, ERC20 farmCoin) public {
         _cryptoFarming = cryptoFarming;
         _farmCoin = farmCoin;
-        registerBreeder(owner());
-        //ganache accounts #2
-        registerBreeder(0x2BF9e1Eb0C50a58E308328CB76556E42Ad6919c3);
-        macgyver(10, true, true, false);
     }
 
     function registerBreeder(address _address) public onlyOwner() {

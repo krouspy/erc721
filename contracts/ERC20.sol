@@ -7,8 +7,8 @@ contract ERC20 is Ownable {
 
     using SafeMath for uint256;
 
-    event Transfer(address indexed from, address indexed to, uint256 value);
-    event Approval(address indexed owner, address indexed spender, uint256 value);
+    event Transfer(address indexed from, address indexed to, uint256 indexed value);
+    event Approval(address indexed owner, address indexed spender, uint256 indexed value);
 
     mapping (address => uint256) private _balances;
     mapping (address => mapping (address => uint256)) private _allowed;
@@ -24,7 +24,6 @@ contract ERC20 is Ownable {
         _totalSupply = totalSupply;
         _decimals = decimals;
         _mint(owner(), _totalSupply);
-        transferFrom(owner(), 0x2BF9e1Eb0C50a58E308328CB76556E42Ad6919c3, balanceOf(owner()).div(10));
     }
 
     function totalSupply() public view returns (uint256) {

@@ -78,7 +78,7 @@ contract ERC721 is Ownable {
 
     function approve(address to, uint tokenId) public {
         address owner = ownerOf(tokenId);
-        require(to != owner, "");
+        require(to != owner, "you approve for the owner of the token");
         require(msg.sender == owner || isApprovedForAll(owner, msg.sender), "");
         _tokenApprovals[tokenId] = to;
         emit Approval(owner, to, tokenId);
@@ -94,7 +94,7 @@ contract ERC721 is Ownable {
     }
 
     function setApprovalForAll(address to, bool approved) public {
-        require(to != msg.sender, "");
+        require(to != msg.sender, "you approve for yourself");
         _operatorApprovals[msg.sender][to] = approved;
         emit ApprovalForAll(msg.sender, to, approved);
     }
