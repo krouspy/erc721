@@ -75,6 +75,7 @@ By default, accounts[0] is the address deploying our contracts that means it is 
 **Breeding**
 
 Need to approve a specific address to use our token. Say that token #1 belongs to accounts[0] (owner) and token #2 belongs to accounts[1]
+
 Approve accounts[1] to breed with our animal (assume they are of different sex).
 
     ERC721.deployed().then(instance => erc721 == instance)
