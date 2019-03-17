@@ -87,6 +87,8 @@ Approve accounts[1] to breed with our animal (assume they are of different sex).
 
 **Auction**
 
+For the auction, we chose to not use the token approvement to allow someone to bid on our animal. Indeed, we felt it was appropriate to let everyone bid on our animal. There was also the possibility to use a mapping (uint => bool) _tokenApprovedForEveryone in the ERC721 contract but we didn't find it relevant. **Same for Arena**.
+
     farm.createAuction(1, 2000)
     farm.bidOnAuction(1, 2000)
 
