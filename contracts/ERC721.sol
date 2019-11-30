@@ -17,6 +17,14 @@ contract ERC721 is Ownable {
     mapping (address => Counters.Counter) private _ownedTokensCount;
     mapping (address => mapping (address => bool)) private _operatorApprovals;
 
+    // mint new token to a given address from 2 existing tokens
+    // caller has to be owner of the 2 given tokens
+    function mintFromTwo(uint256 tokenId1, uint256 tokenId2, uint256 newTokenId, address to) public {
+      require(msg.sender == _tokenOwner[tokenId1], 'mint from two: not owner of token 1');
+      require(msg.sender == _tokenOwner[tokenId2], 'mint from two: not owner of token 2');
+      _mint(to, newTokenId);
+    }
+
     function balanceOf(address owner) public view returns (uint) {
         require(owner != address(0), "address 0x0");
         return _ownedTokensCount[owner].current();
