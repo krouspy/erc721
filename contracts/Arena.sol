@@ -48,6 +48,26 @@ contract Arena {
         _;
     }
 
+    /**
+     * returns winner by taking last hash digit of last block mined
+     * if pair then tokenId1 wins
+     * else tokenId2 wins
+     * with this process, only miners can determine who will wins and not users
+     */
+    function whoWins(uint256 tokenId1, uint256 tokenId2) public view returns (uint256) {
+      uint256 currentBlockNumber = block.number;
+      bytes32 lastBlockHash = blockhash(currentBlockNumber - 1);
+      byte lastByte = lastBlockHash[lastBlockHash.length - 1];
+      uint val = uint(lastByte);
+      return val%2 == 0 ? tokenId1 : tokenId2;
+    }
+
+    // burn/kill given tokenId/animal
+    // caller has to be owner
+    function killAnimal(uint256 tokenId) public onlyOwnerOf(tokenId) {
+      _farm.deadAnimal(tokenId);
+    }
+
     function isFighter(uint id) public view returns (bool) {
         return _fighters[id];
     }
